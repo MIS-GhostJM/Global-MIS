@@ -159,8 +159,6 @@
   
   .add-tax-button:hover, .clear-fields-button:hover {
     background-color: #27ae60;
-  }
-  
   /* Notes section */
   .notes {
     margin-top: 40px;
@@ -168,6 +166,7 @@
     background-color: #fdf6e3;
     border-left: 4px solid #b58900;
     border-radius: 4px;
+    animation: slideInLeft 0.5s ease;
   }
   
   .notes p {
