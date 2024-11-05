@@ -163,8 +163,8 @@ button {
 
   /* Notes section */
   .notes {
-    margin-top: 40px;
-    padding: 20px;
+    margin-top: 8px;
+    padding: 5px 1em;
     background-color: #fdf6e3;
     border-left: 4px solid #b58900;
     border-radius: 4px;
