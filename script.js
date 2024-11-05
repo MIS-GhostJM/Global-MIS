@@ -1,6 +1,6 @@
 // Constants
 const CONSTANTS = {
-  MAX_TAX_ROWS: 20,
+  MAX_TAX_ROWS: 25,
   DEBOUNCE_DELAY: 300
 };
 
@@ -133,8 +133,8 @@ function addTaxRow() {
   newRow.id = `taxRow${state.taxRowCount}`;
   newRow.innerHTML = `
     <td><input type="text" id="taxType${state.taxRowCount}" maxlength="2" class="tax-type"></td>
-    <td><input type="number" id="oldFare${state.taxRowCount}" value="0" min="0" step="0.01"></td>
-    <td><input type="number" id="newFare${state.taxRowCount}" value="0" min="0" step="0.01"></td>
+    <td><input type="number" id="oldFare${state.taxRowCount}" value="" min="0" step="0.01"></td>
+    <td><input type="number" id="newFare${state.taxRowCount}" value="" min="0" step="0.01"></td>
     <td id="taxDiff${state.taxRowCount}" class="currency">0</td>
     <td><button class="remove-tax-button" onclick="removeTaxRow(${state.taxRowCount})">Remove</button></td>
   `;
@@ -176,7 +176,7 @@ function clearFields() {
   document.getElementById("taxType1").value = "";
   document.getElementById("oldFare1").value = "";
   document.getElementById("newFare1").value = "";
-  document.getElementById("taxDiff1").textContent = "";
+  document.getElementById("taxDiff1").textContent = "0";
 
   // Remove all additional tax rows beyond the initial row
   const tbody = document.getElementById("taxTableBody");
@@ -191,9 +191,9 @@ function clearFields() {
   document.getElementById('maxTaxAlert').style.display = 'none';
 
   // Reset summary calculations to zero
-  document.getElementById("totalBaseFare").textContent = "";
-  document.getElementById("taxDifference").textContent = "";
-  document.getElementById("totalFareDiff").textContent = "";
+  document.getElementById("totalBaseFare").textContent = "0";
+  document.getElementById("taxDifference").textContent = "0";
+  document.getElementById("totalFareDiff").textContent = "0";
 
   // Update the state and UI to reflect these changes
   updateSummary();
