@@ -107,12 +107,12 @@ function handleFlexibilityChange() {
   const airlinePenaltyRow = document.getElementById('airlinePenaltyRow');
   const serviceFeeRow = document.getElementById('serviceFeeRow');
 
-  if (flexibility === 'Yes') {
-    airlinePenaltyRow.style.display = 'none';
-    serviceFeeRow.style.display = 'none';
-  } else {
+  if (flexibility === 'No') {
     airlinePenaltyRow.style.display = '';
     serviceFeeRow.style.display = '';
+  } else {
+    airlinePenaltyRow.style.display = 'none';
+    serviceFeeRow.style.display = 'none';
   }
 
   updateSummary(); // Update summary to reflect changes
@@ -169,7 +169,7 @@ function clearFields() {
   document.getElementById("serviceFee").value = "0";
 
   // Reset flexibility selection
-  document.getElementById("flexibilitySelect").value = "Yes";
+  document.getElementById("flexibilitySelect").value = "Select";
   handleFlexibilityChange(); // Adjust visibility of penalty and service fee fields based on flexibility
 
   // Reset initial tax row
