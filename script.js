@@ -161,12 +161,12 @@ function removeTaxRow(rowNumber) {
 // Clear fields function
 function clearFields() {
   // Reset base fare inputs
-  document.getElementById("baseOldFare").value = "0";
-  document.getElementById("baseNewFare").value = "0";
+  document.getElementById("baseOldFare").value = "";
+  document.getElementById("baseNewFare").value = "";
 
   // Reset penalty and service fee inputs
-  document.getElementById("airlinePenalty").value = "0";
-  document.getElementById("serviceFee").value = "0";
+  document.getElementById("airlinePenalty").value = "";
+  document.getElementById("serviceFee").value = "";
 
   // Reset flexibility selection
   document.getElementById("flexibilitySelect").value = "Select";
@@ -174,9 +174,9 @@ function clearFields() {
 
   // Reset initial tax row
   document.getElementById("taxType1").value = "";
-  document.getElementById("oldFare1").value = "0";
-  document.getElementById("newFare1").value = "0";
-  document.getElementById("taxDiff1").textContent = "0";
+  document.getElementById("oldFare1").value = "";
+  document.getElementById("newFare1").value = "";
+  document.getElementById("taxDiff1").textContent = "";
 
   // Remove all additional tax rows beyond the initial row
   const tbody = document.getElementById("taxTableBody");
@@ -191,9 +191,9 @@ function clearFields() {
   document.getElementById('maxTaxAlert').style.display = 'none';
 
   // Reset summary calculations to zero
-  document.getElementById("totalBaseFare").textContent = "0";
-  document.getElementById("taxDifference").textContent = "0";
-  document.getElementById("totalFareDiff").textContent = "0";
+  document.getElementById("totalBaseFare").textContent = "";
+  document.getElementById("taxDifference").textContent = "";
+  document.getElementById("totalFareDiff").textContent = "";
 
   // Update the state and UI to reflect these changes
   updateSummary();
