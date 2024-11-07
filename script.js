@@ -47,8 +47,7 @@ function removeTaxRow(rowIndex) {
 function calculateFareDifference() {
     const baseOldFare = parseFloat(document.getElementById('baseOldFare').value) || 0;
     const baseNewFare = parseFloat(document.getElementById('baseNewFare').value) || 0;
-    const isFlexible = document.getElementById('flexibilitySelect').value === 'Yes';
-    const isSelectNotSet = document.getElementById('flexibilitySelect').value === 'Select';
+    const isFlexible = document.getElementById('flexibilitySelect').value === 'No';
     let airlinePenalty = parseFloat(document.getElementById('airlinePenalty').value) || 0;
     let serviceFee = parseFloat(document.getElementById('serviceFee').value) || 0;
     const gdscurrency = document.getElementById('gdscurrency').value || '';
@@ -74,18 +73,12 @@ function calculateFareDifference() {
     totalFareDifference += totalTaxDifference + airlinePenalty;
 
     // Show or hide airline penalty and service fee fields based on flexibility
-    document.getElementById('airlinePenaltyRow').style.display = isFlexible ? 'none' : 'flex';
-    document.getElementById('serviceFeeRow').style.display = isFlexible ? 'none' : 'flex';
-    document.getElementById('serviceFeeCurrencyRow').style.display = isFlexible ? 'none' : 'flex';
-    document.getElementById('serviceFeeCurrencyRow').style.display = isFlexible ? 'none' : 'flex';
-    document.getElementById('Servicefeesummary').style.display = isFlexible? 'none' : 'flex';
-    document.getElementById('Penaltysummary').style.display = isFlexible? 'none' : 'flex';
-    document.getElementById('airlinePenaltyRow').style.display = isSelectNotSet ? 'none' : 'flex';
-    document.getElementById('serviceFeeRow').style.display = isSelectNotSet ? 'none' : 'flex';
-    document.getElementById('serviceFeeCurrencyRow').style.display = isSelectNotSet ? 'none' : 'flex';
-    document.getElementById('serviceFeeCurrencyRow').style.display = isSelectNotSet ? 'none' : 'flex';
-    document.getElementById('Servicefeesummary').style.display = isSelectNotSet? 'none' : 'flex';
-    document.getElementById('Penaltysummary').style.display = isSelectNotSet? 'none' : 'flex';
+    document.getElementById('airlinePenaltyRow').style.display = isFlexible ? 'flex' : 'none';
+    document.getElementById('serviceFeeRow').style.display = isFlexible ? 'flex' : 'none';
+    document.getElementById('serviceFeeCurrencyRow').style.display = isFlexible ? 'flex' : 'none';
+    document.getElementById('serviceFeeCurrencyRow').style.display = isFlexible ? 'flex' : 'none';
+    document.getElementById('Servicefeesummary').style.display = isFlexible? 'flex' : 'none';
+    document.getElementById('Penaltysummary').style.display = isFlexible? 'flex' : 'none';
     
 
 
@@ -146,7 +139,6 @@ function generateSummaryText() {
 async function handleCopy() {
     const copyButton = document.getElementById('copyButton');
     const isFlexible = document.getElementById("flexibilitySelect").value === "No";
-    const isSelectNotSet = document.getElementById("flexibilitySelect").value === "Select";
     const airlinePenalty = document.getElementById("airlinePenalty").value;
     const serviceFee = document.getElementById("serviceFee").value;
     const serviceFeeCurrency = document.getElementById("serviceFeeCurrency").value;
@@ -160,13 +152,6 @@ async function handleCopy() {
         setTimeout(() => copyButton.classList.remove('error'), CONSTANTS.COPY_SUCCESS_DURATION);
         return;
     }  
-
-    if (isSelectNotSet) {
-        copyButton.classList.add('error');
-        showTooltip('Please Set Flexibility Type', copyButton);
-        setTimeout(() => copyButton.classList.remove('error'), CONSTANTS.COPY_SUCCESS_DURATION);
-        return;
-    }
     
     if (isFlexible && (!airlinePenalty || !serviceFee || !serviceFeeCurrency || !newbasefare || !oldbasefare || !gdscurrency )) {
         copyButton.classList.add('error');
@@ -174,6 +159,7 @@ async function handleCopy() {
         setTimeout(() => copyButton.classList.remove('error'), CONSTANTS.COPY_SUCCESS_DURATION);
         return;
     }
+
 
     // Clear any previous tooltip to allow a new one
     document.querySelectorAll('.tooltip').forEach(tooltip => tooltip.remove());
