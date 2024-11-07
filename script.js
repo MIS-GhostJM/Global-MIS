@@ -1,234 +1,240 @@
-// Constants
+let taxRowCount = 1; // Start with 1 for the initial row
+const MAX_TAX_ROWS = 20;
 const CONSTANTS = {
-  MAX_TAX_ROWS: 25,
-  DEBOUNCE_DELAY: 300
+    COPY_SUCCESS_DURATION: 1000 // duration in milliseconds (2 seconds)
 };
 
-// State management
-const state = {
-  taxRowCount: 1,
-  calculations: {
-    baseFareDiff: 0,
-    overallTaxDiff: 0,
-    totalFareDiff: 0
-  }
-};
-
-// Utility functions
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      func(...args);
-    }, wait);
-  };
-}
-
-function formatCurrency(value) {
-  return parseFloat(value).toFixed(2);
-}
-
-function safeCalculation(calculation) {
-  try {
-    return calculation();
-  } catch (error) {
-    console.error('Calculation error:', error);
-    return 0;
-  }
-}
-
-// Calculation functions
-function calculateBaseFareDifference() {
-  return safeCalculation(() => {
-    const baseOldFare = parseFloat(document.getElementById("baseOldFare").value) || 0;
-    const baseNewFare = parseFloat(document.getElementById("baseNewFare").value) || 0;
-    const baseFareDiff = baseNewFare - baseOldFare;
-    
-    document.getElementById("totalBaseFare").textContent = formatCurrency(baseFareDiff);
-    return baseFareDiff;
-  });
-}
-
-function calculateTaxDifferences() {
-  return safeCalculation(() => {
-    let overallTaxDiff = 0;
-
-    for (let i = 1; i <= state.taxRowCount; i++) {
-      const oldFare = parseFloat(document.getElementById(`oldFare${i}`).value) || 0;
-      const newFare = parseFloat(document.getElementById(`newFare${i}`).value) || 0;
-      const difference = newFare - oldFare;
-
-      document.getElementById(`taxDiff${i}`).textContent = formatCurrency(difference);
-
-      if (difference >= 0) {
-        overallTaxDiff += difference;
-      }
+// Function to add a new tax row
+function addTaxRow() {
+    if (taxRowCount >= MAX_TAX_ROWS) {
+        document.getElementById('maxTaxAlert').style.display = 'block';
+        return;
     }
 
-    document.getElementById("taxDifference").textContent = formatCurrency(overallTaxDiff);
-    return overallTaxDiff;
-  });
+    taxRowCount++;
+    const taxTableBody = document.getElementById('taxTableBody');
+    const newRow = document.createElement('tr');
+    newRow.id = `taxRow${taxRowCount}`;
+
+    newRow.innerHTML = `
+        <td><input type="text" id="taxType${taxRowCount}" maxlength="2" class="tax-type"></td>
+        <td><input type="number" id="oldFare${taxRowCount}" placeholder="0.00" min="0" step="0.01"></td>
+        <td><input type="number" id="newFare${taxRowCount}" placeholder="0.00" min="0" step="0.01"></td>
+        <td id="taxDiff${taxRowCount}" class="currency">0.00</td>
+        <td><button class="remove-tax-button" onclick="removeTaxRow(${taxRowCount})">Remove</button></td>
+    `;
+
+    taxTableBody.appendChild(newRow);
+    addTaxRowEventListeners(taxRowCount);
+    calculateFareDifference();
 }
 
-function calculateTotalFareDifference(baseFareDiff, taxDiff) {
-  const flexibility = document.getElementById('flexibilitySelect').value;
-  let totalFareDiff = baseFareDiff + taxDiff;
-
-  if (flexibility === 'No') {
-    const airlinePenalty = parseFloat(document.getElementById('airlinePenalty').value) || 0;
-    const serviceFee = parseFloat(document.getElementById('serviceFee').value) || 0;
-    totalFareDiff += airlinePenalty + serviceFee;
-  }
-
-  return totalFareDiff;
+// Add event listeners to dynamically added tax rows
+function addTaxRowEventListeners(rowNumber) {
+    document.getElementById(`taxType${rowNumber}`).addEventListener('input', calculateFareDifference);
+    document.getElementById(`oldFare${rowNumber}`).addEventListener('input', calculateFareDifference);
+    document.getElementById(`newFare${rowNumber}`).addEventListener('input', calculateFareDifference);
 }
 
-// Update functions
-const updateSummary = debounce(() => {
-  const baseFareDiff = calculateBaseFareDifference();
-  const taxDiff = calculateTaxDifferences();
-  const totalFareDiff = calculateTotalFareDifference(baseFareDiff, taxDiff);
-
-  // Update state
-  state.calculations = {
-    baseFareDiff,
-    overallTaxDiff: taxDiff,
-    totalFareDiff
-  };
-
-  // Update DOM
-  document.getElementById("totalFareDiff").textContent = formatCurrency(totalFareDiff);
-}, CONSTANTS.DEBOUNCE_DELAY);
-
-// Flexibility change handler
-function handleFlexibilityChange() {
-  const flexibility = document.getElementById('flexibilitySelect').value;
-  const airlinePenaltyRow = document.getElementById('airlinePenaltyRow');
-  const serviceFeeRow = document.getElementById('serviceFeeRow');
-
-  if (flexibility === 'No') {
-    airlinePenaltyRow.style.display = '';
-    serviceFeeRow.style.display = '';
-  } else {
-    airlinePenaltyRow.style.display = 'none';
-    serviceFeeRow.style.display = 'none';
-  }
-
-  updateSummary(); // Update summary to reflect changes
+// Function to remove a tax row
+function removeTaxRow(rowIndex) {
+    document.getElementById(`taxRow${rowIndex}`).remove();
+    taxRowCount--;
+    calculateFareDifference();
 }
 
-// Row management functions
-function addTaxRow() {
-  if (state.taxRowCount >= CONSTANTS.MAX_TAX_ROWS) {
-    document.getElementById('maxTaxAlert').style.display = 'block';
-    return;
-  }
+// Function to calculate the fare difference and update the tax breakdown
+function calculateFareDifference() {
+    const baseOldFare = parseFloat(document.getElementById('baseOldFare').value) || 0;
+    const baseNewFare = parseFloat(document.getElementById('baseNewFare').value) || 0;
+    const isFlexible = document.getElementById('flexibilitySelect').value === 'Yes';
+    let airlinePenalty = parseFloat(document.getElementById('airlinePenalty').value) || 0;
+    let serviceFee = parseFloat(document.getElementById('serviceFee').value) || 0;
+    const gdscurrency = document.getElementById('gdscurrency').value || '';
+    const serviceFeeCurrency = document.getElementById('serviceFeeCurrency').value || '';
 
-  state.taxRowCount++;
-  const tbody = document.getElementById("taxTableBody");
-  const fragment = document.createDocumentFragment();
+    let totalBaseFare = baseNewFare - baseOldFare;
+    let totalTaxDifference = 0;
+    let totalFareDifference = 0;
+    const taxBreakdown = [];
 
-  const newRow = document.createElement("tr");
-  newRow.id = `taxRow${state.taxRowCount}`;
-  newRow.innerHTML = `
-    <td><input type="text" id="taxType${state.taxRowCount}" maxlength="2" class="tax-type"></td>
-    <td><input type="number" id="oldFare${state.taxRowCount}" value="" min="0" step="0.01"></td>
-    <td><input type="number" id="newFare${state.taxRowCount}" value="" min="0" step="0.01"></td>
-    <td id="taxDiff${state.taxRowCount}" class="currency">0</td>
-    <td><button class="remove-tax-button" onclick="removeTaxRow(${state.taxRowCount})">Remove</button></td>
-  `;
+    for (let i = 1; i <= taxRowCount; i++) {
+        const taxType = document.getElementById(`taxType${i}`).value;
+        const oldFare = parseFloat(document.getElementById(`oldFare${i}`).value) || 0;
+        const newFare = parseFloat(document.getElementById(`newFare${i}`).value) || 0;
+        const taxDifference = newFare - oldFare;
 
-  fragment.appendChild(newRow);
-  tbody.appendChild(fragment);
+        document.getElementById(`taxDiff${i}`).textContent = `${taxDifference.toFixed(2)} ${gdscurrency}`;
+        if (taxDifference >= 0) totalTaxDifference += taxDifference;
+        taxBreakdown.push({ type: taxType, difference: taxDifference });
+    }
 
-  // Setup new row event listeners
-  document.getElementById(`oldFare${state.taxRowCount}`).addEventListener("input", updateSummary);
-  document.getElementById(`newFare${state.taxRowCount}`).addEventListener("input", updateSummary);
+    if (totalBaseFare > 0) totalFareDifference += totalBaseFare;
+    totalFareDifference += totalTaxDifference + airlinePenalty;
 
-  updateSummary();
+    // Show or hide airline penalty and service fee fields based on flexibility
+    document.getElementById('airlinePenaltyRow').style.display = isFlexible ? 'none' : 'flex';
+    document.getElementById('serviceFeeRow').style.display = isFlexible ? 'none' : 'flex';
+    document.getElementById('serviceFeeCurrencyRow').style.display = isFlexible ? 'none' : 'flex';
+    document.getElementById('serviceFeeCurrencyRow').style.display = isFlexible ? 'none' : 'flex';
+    document.getElementById('Servicefeesummary').style.display = isFlexible? 'none' : 'flex';
+    document.getElementById('Penaltysummary').style.display = isFlexible? 'none' : 'flex';
+
+
+    document.getElementById('totalBaseFare').textContent = `${totalBaseFare > 0 ? totalBaseFare.toFixed(2) : '0.00'} ${gdscurrency}`;
+    document.getElementById('Penaltysummary').querySelector('.currency').textContent = `${airlinePenalty.toFixed(2)} ${gdscurrency}`;
+    document.getElementById('taxDifference').textContent = `${totalTaxDifference.toFixed(2)} ${gdscurrency}`;
+    document.getElementById('totalFareDiff').textContent = `${totalFareDifference.toFixed(2)} ${gdscurrency}`;
+    document.getElementById('totalBaseFareshow').textContent = `${totalBaseFare.toFixed(2)} ${gdscurrency}`;
+    document.getElementById('Servicefeesummary').querySelector('.currency').textContent = `${serviceFee.toFixed(2)} ${serviceFeeCurrency}`;
+
+    updateTaxBreakdown(taxBreakdown, taxBreakdown.every(t => !t.type && t.difference === 0), gdscurrency);
 }
 
-function removeTaxRow(rowNumber) {
-  const row = document.getElementById(`taxRow${rowNumber}`);
-  if (row) {
-    row.remove();
-    state.taxRowCount--;
-    updateSummary();
-  }
+// Function to update the tax breakdown in the UI
+function updateTaxBreakdown(taxBreakdown, isTaxTableUnchanged, gdscurrency) {
+    const taxListElement = document.querySelector('.tax-list');
+    taxListElement.innerHTML = '';
+
+    if (isTaxTableUnchanged) {
+        taxListElement.textContent = "No Tax Calculation Defined";
+    } else {
+        taxBreakdown.forEach(tax => {
+            const taxElement = document.createElement('div');
+            taxElement.textContent = `${tax.type || '--'}: Difference: ${tax.difference.toFixed(2)} ${gdscurrency}`;
+            taxListElement.appendChild(taxElement);
+        });
+    }
 }
 
-// Clear fields function
-function clearFields() {
-  // Reset base fare inputs
-  document.getElementById("baseOldFare").value = "";
-  document.getElementById("baseNewFare").value = "";
+// Function to generate summary text
+function generateSummaryText() {
+    const flexibilityValue = document.getElementById("flexibilitySelect").value;
+    let summaryText = "Ticket Change Summary\n";
+    summaryText += "=======================\n";
+    summaryText += `Base Fare Difference: ${document.getElementById("totalBaseFareshow").innerText}\n`;
+    if (flexibilityValue === "No") {
+        summaryText += `Airline Penalty: ${document.getElementById("Penaltysummary").querySelector('.currency').innerText}\n`;
+    }
+    summaryText += `Overall Tax Difference: ${document.getElementById("taxDifference").innerText}\n`;
+    summaryText += "=======================\n";
+    summaryText += `Total Fare Difference: ${document.getElementById("totalFareDiff").innerText}\n`;
+    if (flexibilityValue === "No") {
+        summaryText += `Service Fee: ${document.getElementById("Servicefeesummary").querySelector('.currency').innerText}\n`;
+    }
 
-  // Reset penalty and service fee inputs
-  document.getElementById("airlinePenalty").value = "";
-  document.getElementById("serviceFee").value = "";
+    summaryText += "\n***Tax Breakdown***\n";
+    for (let i = 1; i <= taxRowCount; i++) {
+        const taxType = document.getElementById(`taxType${i}`).value || "--";
+        const oldFare = document.getElementById(`oldFare${i}`).value || "0.00";
+        const newFare = document.getElementById(`newFare${i}`).value || "0.00";
+        const taxDifference = document.getElementById(`taxDiff${i}`).textContent || "-.--";
+        summaryText += `${taxType}: Old: ${oldFare}, New: ${newFare}, Difference: ${taxDifference}\n`;
+    }
 
-  // Reset flexibility selection
-  document.getElementById("flexibilitySelect").value = "Select";
-  handleFlexibilityChange(); // Adjust visibility of penalty and service fee fields based on flexibility
-
-  // Reset initial tax row
-  document.getElementById("taxType1").value = "";
-  document.getElementById("oldFare1").value = "";
-  document.getElementById("newFare1").value = "";
-  document.getElementById("taxDiff1").textContent = "0";
-
-  // Remove all additional tax rows beyond the initial row
-  const tbody = document.getElementById("taxTableBody");
-  while (tbody.children.length > 1) {
-    tbody.removeChild(tbody.lastChild);
-  }
-
-  // Reset tax row count to initial state
-  state.taxRowCount = 1;
-
-  // Hide any max tax alert if it was previously shown
-  document.getElementById('maxTaxAlert').style.display = 'none';
-
-  // Reset summary calculations to zero
-  document.getElementById("totalBaseFare").textContent = "0";
-  document.getElementById("taxDifference").textContent = "0";
-  document.getElementById("totalFareDiff").textContent = "0";
-
-  // Update the state and UI to reflect these changes
-  updateSummary();
+    return summaryText;
 }
 
-// Event listeners setup
-document.addEventListener("DOMContentLoaded", () => {
-  // Hide "Airlines Penalty" and "Our Service Fee" rows by default
-  document.getElementById('airlinePenaltyRow').style.display = 'none';
-  document.getElementById('serviceFeeRow').style.display = 'none';
+// Function to handle copy functionality
+async function handleCopy() {
+    const copyButton = document.getElementById('copyButton');
+    const isFlexible = document.getElementById("flexibilitySelect").value === "No";
+    const airlinePenalty = document.getElementById("airlinePenalty").value;
+    const serviceFee = document.getElementById("serviceFee").value;
+    const serviceFeeCurrency = document.getElementById("serviceFeeCurrency").value;
+    const oldbasefare = document.getElementById('baseOldFare').value;
+    const newbasefare = document.getElementById('baseNewFare').value;
+    const gdscurrency = document.getElementById('gdscurrency').value;
 
-  // Base fare inputs
-  document.getElementById("baseOldFare").addEventListener("input", updateSummary);
-  document.getElementById("baseNewFare").addEventListener("input", updateSummary);
+    if (!newbasefare || !oldbasefare || !gdscurrency) {
+        copyButton.classList.add('error');
+        showTooltip('Please complete Base Fares and Currency Codes', copyButton);
+        setTimeout(() => copyButton.classList.remove('error'), CONSTANTS.COPY_SUCCESS_DURATION);
+        return;
+    }    
+    
+    if (isFlexible && (!airlinePenalty || !serviceFee || !serviceFeeCurrency || !newbasefare || !oldbasefare || !gdscurrency )) {
+        copyButton.classList.add('error');
+        showTooltip('Please complete Base Fares, Airline Penalty, Service Fee, and Currency Codes', copyButton);
+        setTimeout(() => copyButton.classList.remove('error'), CONSTANTS.COPY_SUCCESS_DURATION);
+        return;
+    }
 
-  // Airline Penalty and Service Fee inputs
-  document.getElementById("airlinePenalty").addEventListener("input", updateSummary);
-  document.getElementById("serviceFee").addEventListener("input", updateSummary);
+    // Clear any previous tooltip to allow a new one
+    document.querySelectorAll('.tooltip').forEach(tooltip => tooltip.remove());
 
-  // Initial tax row
-  document.getElementById(`oldFare1`).addEventListener("input", updateSummary);
-  document.getElementById(`newFare1`).addEventListener("input", updateSummary);
+    const summaryText = generateSummaryText();
+    try {
+        await navigator.clipboard.writeText(summaryText);
+        copyButton.classList.add('success');
+        showTooltip('Copied!', copyButton);
+    } catch (err) {
+        copyButton.classList.add('error');
+        showTooltip('Failed to copy', copyButton);
+    }
 
-  // Flexibility select
-  document.getElementById("flexibilitySelect").addEventListener("change", () => {
-    handleFlexibilityChange();
-    updateSummary();
-  });
+    setTimeout(() => copyButton.classList.remove('success', 'error'), CONSTANTS.COPY_SUCCESS_DURATION);
+}
 
-  // Add tax button
-  document.getElementById("addTaxButton").addEventListener("click", addTaxRow);
 
-  // Clear Fields button
-  document.querySelector(".clear-fields-button").addEventListener("click", clearFields);
+// Function to show tooltip feedback for actions
+function showTooltip(message, element) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = message;
+    document.body.appendChild(tooltip);
+    const rect = element.getBoundingClientRect();
+    tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+    tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 5}px`;
+    
+    setTimeout(() => tooltip.remove(), CONSTANTS.COPY_SUCCESS_DURATION);
+}
 
-  // Initial calculation
-  updateSummary();
+// Function to reset all input fields and clear summaries
+function handleReset() {
+    document.getElementById('baseOldFare').value = '';
+    document.getElementById('baseNewFare').value = '';
+    document.getElementById('flexibilitySelect').value = 'Yes';
+    document.getElementById('airlinePenalty').value = '';
+    document.getElementById('serviceFee').value = '';
+    document.getElementById('gdscurrency').value = '';
+    document.getElementById('serviceFeeCurrency').value = '';
+
+    // Reset all tax rows except the first one
+    while (taxRowCount > 1) {
+        removeTaxRow(taxRowCount);
+    }
+
+    // Clear the first tax row
+    document.getElementById('taxType1').value = '';
+    document.getElementById('oldFare1').value = '';
+    document.getElementById('newFare1').value = '';
+
+    // Hide any alerts or tooltips
+    document.getElementById('maxTaxAlert').style.display = 'none';
+
+    // Reset calculations
+    calculateFareDifference();
+}
+
+// Initialize event listeners
+document.getElementById('baseOldFare').addEventListener('input', calculateFareDifference);
+document.getElementById('baseNewFare').addEventListener('input', calculateFareDifference);
+document.getElementById('flexibilitySelect').addEventListener('change', calculateFareDifference);
+document.getElementById('airlinePenalty').addEventListener('input', calculateFareDifference);
+document.getElementById('serviceFee').addEventListener('input', calculateFareDifference);
+document.getElementById('gdscurrency').addEventListener('input', calculateFareDifference);
+document.getElementById('serviceFeeCurrency').addEventListener('input', calculateFareDifference);
+document.querySelector(".clear-fields-button").addEventListener('click', handleReset);
+document.getElementById('copyButton').addEventListener('click', handleCopy);
+
+// Initialize listeners for the inputs in the first tax row
+document.getElementById('taxType1').addEventListener('input', calculateFareDifference);
+document.getElementById('oldFare1').addEventListener('input', calculateFareDifference);
+document.getElementById('newFare1').addEventListener('input', calculateFareDifference);
+
+// Add the initial tax row and initialize the calculations on page load
+document.addEventListener('DOMContentLoaded', () => {
+    taxRowCount = 1;
+    calculateFareDifference(); // Ensure initial calculation values are set
 });
