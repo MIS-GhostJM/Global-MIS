@@ -62,8 +62,8 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: var(--spacing-lg);
-    display: flex 400px 1fr;
-    grid-template-columns: 1fr 350px;
+    display: flex;
+    grid-template-columns: 350px 1fr;
     gap: var(--spacing-xl);
 }
 
