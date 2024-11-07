@@ -1,104 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fare Difference Calculator</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fare Difference Calculator</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Fare Difference Calculator</h1>
-
-    <div class="controls">
-      <div>
-        Old Base Fare:
-        <input type="number" id="baseOldFare" value="" min="0" step="0.01">
-      </div>
-      <div>
-        New Base Fare:
-        <input type="number" id="baseNewFare" value="" min="0" step="0.01">
-      </div>
-      <div>
-        Flexibility: 
-        <select id="flexibilitySelect">
-            <option value="Select">Select Restriction</option>  
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <button class="clear-fields-button" id="clearFieldsButton">Clear Fields</button>
-    </div>
-
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Tax Type</th>
-            <th>Old Fare</th>
-            <th>New Fare</th>
-            <th>Difference</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="taxTableBody">
-          <tr id="taxRow1">
-            <td><input type="text" id="taxType1" maxlength="2" class="tax-type"></td>
-            <td><input type="number" id="oldFare1" value="" min="0" step="0.01"></td>
-            <td><input type="number" id="newFare1" value="" min="0" step="0.01"></td>
-            <td id="taxDiff1" class="currency">0</td>
-            <td><button class="remove-tax-button" onclick="removeTaxRow(1)">Remove</button></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="alert" id="maxTaxAlert">Maximum tax rows reached.</div>
-      <button class="add-tax-button" id="addTaxButton">Add Tax Row</button>
-    </div>
-
-    <div class="summary">
-      <h2>Summary</h2>
-      <table>
-        <tr>
-          <td>Base Fare Difference:</td>
-          <td id="totalBaseFare" class="currency">0</td>
-        </tr>
-        <tr>
-          <td>Tax Difference:</td>
-          <td id="taxDifference" class="currency">0</td>
-        </tr>
-        <tr id="airlinePenaltyRow">
-          <td>Airlines Penalty:</td>
-          <td><input type="number" id="airlinePenalty" value="" min="0" step="0.01" class="currency"></td>
-        </tr>
-        <tr id="serviceFeeRow">
-          <td>Our Service Fee:</td>
-          <td><input type="number" id="serviceFee" value="" min="0" step="0.01" class="currency"></td>
-        </tr>
-        <tr>
-          <td>Total Fare Difference:</td>
-          <td id="totalFareDiff" class="currency">0</td>
-        </tr>
-      </table>
-    </div>
-    <div class="notes">
-      <h3>Notes</h3>
-      <p>
-        All penalties and difference must be charged following the Quouted curreny in your GDS  tool
-      </p>
-      <p>
-        All calculations are per traveller.
-      </p>
-    </div>
-  </div>
-  </div>
-  <footer>
-    <div class="footer-content">
-        <div class="footer-links">
-            &copy; Molina J.M. 2024 GLOBAL MIS APPLICATION. All rights reserved.
+    <div class="container">
+        <div class="main-content" role="main">
+            <h1>Fare Difference Calculator</h1>
+            
+            <div class="controls">
+                <button class="clear-fields-button" id="clear-fields-button">Clear Fields</button>
+                <div class="input-group">
+                    <label for="gdscurrency">GDS Currency Code:</label>
+                    <input type="text" id="gdscurrency" placeholder="" maxlength="3" pattern="[A-Za-z]{1,3}" required>
+                </div>
+                <div class="input-group">
+                    <label for="baseOldFare">Base Old Fare:</label>
+                    <input type="number" id="baseOldFare" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="baseNewFare">Base New Fare:</label>
+                    <input type="number" id="baseNewFare" placeholder="0.00" min="0" step="0.01">
+                </div>
+            </div>
+            <div class="controls">
+                <div class="input-group">
+                    <label for="flexibilitySelect">Is flexible ticket product used?:</label>
+                    <select id="flexibilitySelect">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="input-group" id="airlinePenaltyRow" style="display: none;">
+                    <label for="airlinePenalty">Airline Penalty:</label>
+                    <input type="number" id="airlinePenalty" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="input-group" id="serviceFeeRow" style="display: none;">
+                    <label for="serviceFee">Service Fee:</label>
+                    <input type="number" id="serviceFee" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="input-group" id="serviceFeeCurrencyRow" style="display: none;">
+                    <label for="serviceFee">Service Fee Currency:</label>
+                    <input type="text" id="serviceFeeCurrency" placeholder="" maxlength="3" pattern="[A-Za-z]{1,3}" required>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tax Type</th>
+                            <th>Old Fare</th>
+                            <th>New Fare</th>
+                            <th>Difference</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taxTableBody">
+                        <tr id="taxRow1">
+                            <td><input type="text" id="taxType1" maxlength="2" class="tax-type"></td>
+                            <td><input type="number" id="oldFare1" placeholder="0.00" min="0" step="0.01"></td>
+                            <td><input type="number" id="newFare1" placeholder="0.00" min="0" step="0.01"></td>
+                            <td id="taxDiff1" class="currency">0.00</td>
+                            <td><button class="remove-tax-button" onclick="removeTaxRow(1)">Remove</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="add-tax-button" id="addTaxButton" onclick="addTaxRow()">Add Tax Row</button>
+            <div id="maxTaxAlert" class="alert" style="display: none;">
+                Maximum number of tax rows reached.
+            </div>
+        </div>
+        <div class="side-panel">
+            <div class="notes">
+                <h3>Notes</h3>
+                <ul>
+                    <li>All penalties and difference must be charged following the Quouted curreny in your GDS tool.</li>
+                    <li>All calculations are per traveller.</li>
+                </ul>
+            </div>
+            <div class="summary">
+                <div class="summary-header">
+                    <h2>Summary</h2>
+                    <button class="copy-button" id="copyButton" onclick="handleCopy()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="summary-item" style="display: none;">
+                    <span>Base Fare Difference:</span>
+                    <span class="currency" id="totalBaseFare">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span>Base Fare Difference:</span>
+                    <span class="currency" id="totalBaseFareshow">0.00</span>
+                </div>
+                <div class="summary-item" id="Penaltysummary" style="display: none;">
+                    <span>Airline Penalty:</span>
+                    <span class="currency" id="Penaltysummary">0.00</span>
+                </div>
+                <div class="tax-breakdown">
+                    <h3>Tax Breakdown</h3>
+                    <div class="tax-list"></div>
+                </div>
+                <div class="summary-item">
+                    <span>Overall Tax Difference:</span>
+                    <span class="currency" id="taxDifference">0.00</span>
+                </div>
+                <div class="summary-item total">
+                    <span>Total Fare Difference:</span>
+                    <span class="currency" id="totalFareDiff">0.00</span>
+                </div>
+                <div class="summary-item total" id="Servicefeesummary" style="display: none;">
+                    <span>Service Fee:</span>
+                    <span class="currency" id="Servicefeesummary">0.00</span>
+                </div>
+            </div>
         </div>
     </div>
-</footer>
-
-  <script src="script.js"></script>
+    <footer>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+        <div class="footer-copyright">
+            © 2024 Fare Calculator || Global MIS Application || Molina J.M.
+        </div>
+    </footer>
+    <script src="script.js"></script>
 </body>
 </html>
