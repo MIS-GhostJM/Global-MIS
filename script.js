@@ -138,6 +138,7 @@ function generateSummaryText() {
 async function handleCopy() {
     const copyButton = document.getElementById('copyButton');
     const isFlexible = document.getElementById("flexibilitySelect").value === "No";
+    const isSelectNotSet = document.getElementById("flexibilitySelect").value === "Select";
     const airlinePenalty = document.getElementById("airlinePenalty").value;
     const serviceFee = document.getElementById("serviceFee").value;
     const serviceFeeCurrency = document.getElementById("serviceFeeCurrency").value;
@@ -150,7 +151,14 @@ async function handleCopy() {
         showTooltip('Please complete Base Fares and Currency Codes', copyButton);
         setTimeout(() => copyButton.classList.remove('error'), CONSTANTS.COPY_SUCCESS_DURATION);
         return;
-    }    
+    }  
+
+    if (isSelectNotSet && (!newbasefare || !oldbasefare || !gdscurrency )) {
+        copyButton.classList.add('error');
+        showTooltip('Please Set Flexibility Type', copyButton);
+        setTimeout(() => copyButton.classList.remove('error'), CONSTANTS.COPY_SUCCESS_DURATION);
+        return;
+    }
     
     if (isFlexible && (!airlinePenalty || !serviceFee || !serviceFeeCurrency || !newbasefare || !oldbasefare || !gdscurrency )) {
         copyButton.classList.add('error');
@@ -193,7 +201,7 @@ function showTooltip(message, element) {
 function handleReset() {
     document.getElementById('baseOldFare').value = '';
     document.getElementById('baseNewFare').value = '';
-    document.getElementById('flexibilitySelect').value = 'Yes';
+    document.getElementById('flexibilitySelect').value = 'Select';
     document.getElementById('airlinePenalty').value = '';
     document.getElementById('serviceFee').value = '';
     document.getElementById('gdscurrency').value = '';
