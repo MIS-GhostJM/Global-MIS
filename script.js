@@ -161,7 +161,7 @@ async function handleCopy() {
         return;
     }  
 
-    if (isSelectNotSet && (!newbasefare || !oldbasefare || !gdscurrency )) {
+    if (isSelectNotSet) {
         copyButton.classList.add('error');
         showTooltip('Please Set Flexibility Type', copyButton);
         setTimeout(() => copyButton.classList.remove('error'), CONSTANTS.COPY_SUCCESS_DURATION);
