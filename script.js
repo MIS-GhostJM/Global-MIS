@@ -132,6 +132,14 @@ function generateSummaryText() {
         summaryText += `${taxType}: Old: ${oldFare}, New: ${newFare}, Difference: ${taxDifference}\n`;
     }
 
+    summaryText += "\n***Rebooking Wizard Notes***\n";
+    for (let i = 1; i <= taxRowCount; i++) {
+        const taxType = document.getElementById(`taxType${i}`).value || "--";
+        const taxDifference = document.getElementById(`taxDiff${i}`).textContent || "-.--";
+        summaryText += `${taxDifference} ${taxType}, \n`;
+    }
+
+
     return summaryText;
 }
 
