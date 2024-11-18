@@ -5,7 +5,7 @@
         {
           "scenario": "Chat opening (asking for order no.)",
           "scripts": [
-            "Hello, my name is [Your Name]. To assist you, I will need your order number.",
+            "Hello, my name is <span class='your_name'></span>. To assist you, I will need your order number.",
             "Could you please provide your order number so I can help you further?"
           ]
         },
