@@ -1,40 +1,40 @@
 [
     {
-      "group": "Opening",
-      "scenarios": [
-        {
-          "scenario": "Chat opening (asking for order no.)",
-          "scripts": [
-            "Hello, my name is <span class='your_name'></span>. To assist you, I will need your order number.",
-            "Could you please provide your order number so I can help you further?"
-          ]
-        },
-        {
-          "scenario": "Chat Opening (asking to wait)",
-          "scripts": [
-            "Hello, my name is [Your Name]. Please give me a moment to review your request.",
-            "I’ll be with you shortly; just reviewing your details now."
-          ]
-        }
-      ]
+        "group": "Opening",
+        "scenarios": [
+            {
+                "scenario": "Chat opening (asking for order no.)",
+                "scripts": [
+                    "<p class='script-line'>Hello! Thank you for contacting us. May I have your order number, please?</p>",
+                    "<p class='script-line'>Hi! Could you share your order number so I can assist you better?</p>"
+                ]
+            },
+            {
+                "scenario": "Chat Opening (asking to wait)",
+                "scripts": [
+                    "<p class='script-line'>Thank you for reaching out. Please hold while I look into this.</p>",
+                    "<p class='script-line'>I appreciate your patience. Let me check that for you.</p>"
+                ]
+            }
+        ]
     },
     {
-      "group": "Helpful Statement",
-      "scenarios": [
-        {
-          "scenario": "Confirm Understanding",
-          "scripts": [
-            "Let me see if I understand it correctly, you wanted to Name Correction, is that correct?"
-          ]
-        },
-        {
-          "scenario": "Initiating a positive interaction/simple request",
-          "scripts": [
-            "Sure, let me check that for you.",
-            "No worries, I'll look into that for you right away."
-          ]
-        }
-      ]
+        "group": "Helpful Statement",
+        "scenarios": [
+            {
+                "scenario": "Confirm Understanding",
+                "scripts": [
+                    "<p class='script-line'>Just to confirm, you would like me to proceed with this change?</p>",
+                    "<p class='script-line'>Let me verify this with you before proceeding.</p>"
+                ]
+            },
+            {
+                "scenario": "Initiating a positive interaction/simple request",
+                "scripts": [
+                    "<p class='script-line'>I would be happy to assist you with that.</p>",
+                    "<p class='script-line'>Let me guide you through the process.</p>"
+                ]
+            }
+        ]
     }
-  ]
-  
+]
